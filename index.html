@@ -18,6 +18,17 @@
         .modal.active { display: flex; }
         /* Asegura que el video o imagen llenen el contenedor */
         .media-container img, .media-container video { width: 100%; height: 100%; object-fit: cover; }
+
+        /* ESTILO DEL NUEVO BOTÓN */
+        .btn-pregunta {
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+        .btn-pregunta:hover {
+            background: white;
+            color: black;
+            box-shadow: 0 0 20px rgba(255,255,255,0.1);
+        }
     </style>
 </head>
 <body class="overflow-x-hidden">
@@ -27,7 +38,7 @@
         <div class="z-10">
             <span class="uppercase tracking-[0.3em] text-sm text-gray-500 mb-4 block">Exhibición Temporal Permanente</span>
             <h1 class="text-6xl md:text-8xl font-bold mb-6 gradient-text">Museo de Nosotros</h1>
-            <p class="text-xl md:text-2xl italic text-gray-400 serif">"Nuestra historia, la exposición más bella del mundo"</p>
+            <p class="text-xl md:text-2xl italic text-gray-400 serif">"Celebrando cada segundo desde aquel 06 de marzo"</p>
         </div>
         <div class="absolute bottom-10 z-10 animate-bounce"><i data-lucide="chevron-down" class="text-gray-500"></i></div>
     </section>
@@ -35,27 +46,28 @@
     <section class="py-20 bg-zinc-900/30 border-y border-zinc-800 text-center">
         <div class="container mx-auto px-4">
             <h2 class="text-3xl mb-4 serif">Tiempo en Exhibición</h2>
-            <div id="counter" class="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto">
+            <div id="counter" class="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto mb-10">
                 <div class="p-6 museum-border rounded-lg bg-black/20"><span id="days" class="text-4xl font-light block">0</span><span class="text-xs uppercase tracking-widest text-gray-500">Días</span></div>
                 <div class="p-6 museum-border rounded-lg bg-black/20"><span id="hours" class="text-4xl font-light block">0</span><span class="text-xs uppercase tracking-widest text-gray-500">Horas</span></div>
                 <div class="p-6 museum-border rounded-lg bg-black/20"><span id="minutes" class="text-4xl font-light block">0</span><span class="text-xs uppercase tracking-widest text-gray-500">Minutos</span></div>
                 <div class="p-6 museum-border rounded-lg bg-black/20"><span id="seconds" class="text-4xl font-light block">0</span><span class="text-xs uppercase tracking-widest text-gray-500">Segundos</span></div>
             </div>
+
+            <button onclick="abrirRazon()" class="btn-pregunta px-8 py-3 rounded-full text-xs uppercase tracking-[0.2em] inline-flex items-center gap-2">
+                <i data-lucide="heart" class="w-4 h-4 text-red-500"></i>
+                ¿Sabes por qué no me quieres dejar?
+            </button>
         </div>
     </section>
 
     <section class="py-24 container mx-auto px-4">
-        <div id="galleryGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
-            </div>
+        <div id="galleryGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12"></div>
     </section>
 
     <div id="artModal" class="modal items-center justify-center p-4">
         <div class="bg-zinc-900 w-full max-w-5xl rounded-lg overflow-hidden flex flex-col md:flex-row relative museum-border max-h-[90vh]">
             <button onclick="closeArt()" class="absolute top-4 right-4 z-20 bg-black/50 p-2 rounded-full hover:bg-white hover:text-black transition-all"><i data-lucide="x"></i></button>
-            
-            <div id="modalMediaContainer" class="w-full md:w-3/5 h-[300px] md:h-auto bg-black flex items-center justify-center overflow-hidden">
-                </div>
-
+            <div id="modalMediaContainer" class="w-full md:w-3/5 h-[300px] md:h-auto bg-black flex items-center justify-center overflow-hidden"></div>
             <div class="w-full md:w-2/5 p-8 md:p-12 flex flex-col justify-center bg-zinc-900 border-l border-zinc-800 overflow-y-auto">
                 <span id="modalDate" class="text-xs uppercase tracking-[0.3em] text-gray-500 mb-4 block">Fecha</span>
                 <h2 id="modalTitle" class="text-4xl serif mb-6 text-balance">Título</h2>
@@ -66,8 +78,24 @@
         </div>
     </div>
 
+    <div id="razonModal" class="modal items-center justify-center p-4">
+        <div class="bg-zinc-900 w-full max-w-2xl rounded-lg overflow-hidden relative museum-border p-8 md:p-12 text-center">
+            <button onclick="cerrarRazon()" class="absolute top-4 right-4 text-gray-500 hover:text-white transition-colors"><i data-lucide="x"></i></button>
+            
+            <div class="mb-8 flex justify-center">
+                <div class="w-48 h-48 rounded-full overflow-hidden museum-border bg-black">
+        <img src="foto16.jpg" class="w-full h-full object-cover">                </div>
+            </div>
+
+            <p id="textoRazon" class="text-2xl md:text-3xl serif italic leading-relaxed mb-10">Cargando razón...</p>
+            
+            <button onclick="abrirRazon()" class="text-xs uppercase tracking-widest text-zinc-500 hover:text-white transition-colors">
+                Ver otra razón
+            </button>
+        </div>
+    </div>
+
     <script>
-        // --- CONFIGURACIÓN DE TU GALERÍA ---
         const artData = [
             { title: "Primer Mensaje", date: "10 Diciembre 2020", desc: "Tenemos que vernos jajaja:(", img: "foto.jpg" },
             { title: "Primera Invitacion", date: "13 Diciembre 2020", desc: "Ese dia habia llegado a hablar contigo y justo entre risas salio el tema de vernos por primera vez", img: "foto1.jpg" },
@@ -100,22 +128,43 @@
             { title: "Otro dia de fiesta", date: "31 Octubre 2021", desc: "Ese no fue el dia que te vomitaste? jajajaj", img: "video12.mp4" },
             { title: "Primera Cita KFC", date: "06 Noviembre 2021", desc: "Fue el dia que probamos por primera vez este delicoso combo y despues no pudimos dejar de comerlo", img: "video13.mp4" },
             { title: "Primera Cita Salchis", date: "20 Noviembre 2021", desc: "La primera vez que conociste lo que es la delicia hecha salchipapas mi amor jeje", img: "video14.mp4" },
-             { title: "Ultima vez", date: "26 Noviembre", desc: "Esta fue la ultima vez que nos vimos en este año porque te tenias que ir y todo quedaba en promesas el volver a vernos", img: "foto16.jpg" },
-             { title: "Primera Vez", date: "20 Noviembre 2021", desc: "No sabes lo mucho que anhelaba que llegara este momento solo podia pensar en el volver a verte", img: "video15.mp4" }
-
+            { title: "Ultima vez", date: "26 Noviembre", desc: "Esta fue la ultima vez que nos vimos en este año porque te tenias que ir y todo quedaba en promesas el volver a vernos", img: "foto16.jpg" },
+            { title: "Primera Vez", date: "20 Noviembre 2021", desc: "No sabes lo mucho que anhelaba que llegara este momento solo podia pensar en el volver a verte", img: "video15.mp4" }
         ];
 
-        // Función para decidir si mostrar IMAGEN o VIDEO
+        // --- LISTA DE RAZONES ---
+        const razones = [
+            "Porque nadie te va a mirar con la misma cara de bobo enamorado que yo.",
+            "Porque somos el mejor equipo resolviendo crisis (como la del mosquito).",
+            "Porque todavía me pongo nervioso antes de verte.",
+            "Porque ya me sé todas tus mañas y aun así me encantan.",
+            "Porque soy el único que sabe exactamente cómo te gusta el café.",
+            "Porque me haces querer ser una mejor versión de mí mismo cada día.",
+            "Porque juntos somos más fuertes que cualquier obstáculo.",
+            "Porque guardo cada pequeño detalle que me has dado.",
+            "Porque eres la curadora oficial de mis mejores días.",
+            "Porque nadie te va a cuidar tanto cuando estés enferma.",
+            "Porque nuestras risas tienen un sonido que no cambio por nada.",
+            "Porque nuestra historia apenas está empezando.",
+            "Porque me encanta cómo se siente tu mano con la mía.",
+            "Porque me has visto en mis peores momentos y no te has ido.",
+            "Porque Kaiser y Noah se quedarian sin su papà",
+            "Porque no me imagino un mañana si no es despertando contigo.",
+            "Porque conocemos nuestras versiones más reales y aun así nos elegimos.",
+            "Porque ya invertí demasiado tiempo explicándote mis chistes malos.",
+            "Porque soy el mejor matando mosquitos por ti en la madrugada.",
+            "Porque me haces querer ser una mejor versión de mí mismo cada día.",
+            "Porque hemos crecido juntos desde aquel diciembre de 2020."
+        ];
+
         function getMediaHTML(src, isModal = false) {
             const isVideo = src.toLowerCase().endsWith('.mp4');
             if (isVideo) {
-                // En el modal ponemos controles, en la galería autoplay silenciado
                 return `<video src="${src}" ${isModal ? 'controls' : 'autoplay muted loop'} playsinline class="w-full h-full object-cover"></video>`;
             }
             return `<img src="${src}" alt="Obra" class="w-full h-full object-cover">`;
         }
 
-        // Lógica de Renderizado de la Galería
         const galleryGrid = document.getElementById('galleryGrid');
         artData.forEach((art, index) => {
             galleryGrid.innerHTML += `
@@ -136,10 +185,7 @@
         function openArt(i) {
             const a = artData[i];
             const container = document.getElementById('modalMediaContainer');
-            
-            // Inyectamos el medio (foto o video)
             container.innerHTML = getMediaHTML(a.img, true);
-            
             document.getElementById('modalTitle').innerText = a.title;
             document.getElementById('modalDate').innerText = a.date;
             document.getElementById('modalDesc').innerText = a.desc;
@@ -149,14 +195,28 @@
 
         function closeArt() { 
             document.getElementById('artModal').classList.remove('active'); 
-            // Limpiamos el contenedor para que los videos dejen de sonar al cerrar
             document.getElementById('modalMediaContainer').innerHTML = ''; 
             document.body.style.overflow = 'auto'; 
         }
 
-        window.onclick = (e) => { if(e.target.id === 'artModal') closeArt(); }
+        // --- FUNCIONES NUEVAS ---
+        function abrirRazon() {
+            const index = Math.floor(Math.random() * razones.length);
+            document.getElementById('textoRazon').innerText = `"${razones[index]}"`;
+            document.getElementById('razonModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function cerrarRazon() {
+            document.getElementById('razonModal').classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        window.onclick = (e) => { 
+            if(e.target.id === 'artModal') closeArt(); 
+            if(e.target.id === 'razonModal') cerrarRazon();
+        }
         
-        // Contador de Tiempo
         const startDate = new Date(2021, 2, 6);
         function updateCounter() {
             const diff = new Date() - startDate;
